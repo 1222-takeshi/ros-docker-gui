@@ -14,6 +14,8 @@ from turludock.generate_non_templated_files import (
     generate_meld,
     generate_mesa,
     generate_ohmyzsh,
+    generate_python,
+    generate_ros_autocomplete_fix,
     generate_terminator,
     generate_vscode,
 )
@@ -164,6 +166,7 @@ def generate_dockerfile(yaml_config: Dict[str, Any]) -> str:
     # Common configuration for all images
     dockerfile += generate_common_env_config()
     dockerfile += generate_install_common_packages()
+    dockerfile += generate_python()
     dockerfile += generate_locale()
     dockerfile += generate_cmake(_get_package_version(yaml_config, "cmake"))
     dockerfile += generate_terminator()
@@ -210,6 +213,7 @@ def generate_dockerfile(yaml_config: Dict[str, Any]) -> str:
     # Add ROS
     dockerfile += generate_ros(yaml_config["ros_version"])
     dockerfile += generate_ros_extra(yaml_config["ros_version"])
+    dockerfile += generate_ros_autocomplete_fix(yaml_config["ros_version"])
 
     # Add the extra-packages
     extra_packages_label_list = list()

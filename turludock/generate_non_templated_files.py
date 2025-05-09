@@ -55,6 +55,15 @@ def generate_install_common_packages() -> str:
     return get_non_templated_file("install_common_packages.txt")
 
 
+def generate_python() -> str:
+    """Get python.txt as a string
+
+    Returns:
+        str: The python.txt as a string
+    """
+    return get_non_templated_file("python.txt")
+
+
 def generate_locale() -> str:
     """Get locale.txt as a string
 
@@ -80,6 +89,30 @@ def generate_terminator() -> str:
         str: The terminator.txt as a string
     """
     return get_non_templated_file("terminator.txt")
+
+
+def generate_ros_autocomplete_fix(ros_version_codename: str) -> str:
+    """Get the 'ros2_autocomplete_fix.txt' as a string
+
+    This file is responsible for introducing a fix for zsh autocomplete. Only for "Humble".
+    https://github.com/ros2/ros2cli/issues/534#issuecomment-957516107
+
+    Args:
+        ros_version_codename (str): The ROS version as codename.
+
+    Returns:
+        str: The populated 'ros2_autocomplete_fix.txt' file as a string.
+    """
+    # Only apply for Humble
+    if ros_version_codename == "humble":
+        file = "ros2_autocomplete_fix.txt"
+        logger.debug("Populate '{file}'")
+        with importlib.resources.open_text("turludock.assets.dockerfile_templates", file) as f:
+            str_output = f.read()
+        str_output += "\n\n"
+        return str_output
+    else:
+        return ""
 
 
 def generate_conan() -> str:
