@@ -4,6 +4,7 @@ sudo \
 locales \
 lsb-release \
 git \
+git-lfs \
 subversion \
 nano \
 vim \
