@@ -13,7 +13,6 @@ from turludock.helper_functions import (
     get_cpu_count_for_build,
     get_ros_major_version,
     get_ubuntu_version,
-    is_ros_version_supported,
     is_version_greater,
     is_version_lower,
 )
@@ -121,10 +120,6 @@ def generate_header_info(docker_label_description: str, ros_version_short: str) 
     """
     logger.debug(f"Generate 'header_info.txt'. Input: {docker_label_description}, {ros_version_short}")
 
-    # Check if provided version is supported
-    if not is_ros_version_supported(ros_version_short):
-        raise ValueError(f"ROS version '{ros_version_short}' not supported. Check your configuration.")
-
     # Map the template variables
     mapping = {
         "docker_label_description": docker_label_description,
@@ -199,7 +194,7 @@ def generate_llvm(version: str) -> str:
 
 
 def generate_ros(ros_version_codename: str) -> str:
-    """Generates the 'ros1.txt' or 'ros2.txt' templated file, which is responsible for installing ROS 1 or 2
+    """Generates the 'rosX.txt' templated file, which is responsible for installing ROS 1 or 2
 
     The selection of ROS 1 or 2 is based on the provided ROS codename.
 
@@ -207,10 +202,7 @@ def generate_ros(ros_version_codename: str) -> str:
         ros_version_codename (str): The ROS version as codename.
 
     Returns:
-        str: The populated 'ros1.txt' file as a string.
-
-    Raises:
-        ValueError: If the provided ROS version is not supported.
+        str: The populated 'rosX.txt' file as a string.
     """
     # Determine if it ROS1 or ROS2
     if get_ros_major_version(ros_version_codename) == 1:
@@ -220,9 +212,32 @@ def generate_ros(ros_version_codename: str) -> str:
 
     logger.debug(f"Generate '{template_file}'. Input: {ros_version_codename}")
 
-    # Check if provided version is supported
-    if not is_ros_version_supported(ros_version_codename):
-        raise ValueError("ROS version not supported. Check your configuration.")
+    # Map the template variables
+    mapping = {"ros_version_short": ros_version_codename}
+
+    # Populate the templated file
+    return populate_templated_file(mapping, template_file)
+
+
+def generate_ros_extra(ros_version_codename: str) -> str:
+    """Generates the 'rosX_extra.txt' templated file, which is responsible for installing extra ROS packages
+
+    The selection of ROS 1 or 2 is based on the provided ROS codename.
+
+    Args:
+        ros_version_codename (str): The ROS version as codename.
+
+    Returns:
+        str: The populated 'rosX_extra.txt' file as a string.
+    """
+    # Determine if it ROS1 or ROS2
+    if get_ros_major_version(ros_version_codename) == 1:
+        # TODO
+        return ""
+    else:
+        template_file = "ros2_extra.txt"
+
+    logger.debug(f"Generate '{template_file}'. Input: {ros_version_codename}")
 
     # Map the template variables
     mapping = {"ros_version_short": ros_version_codename}

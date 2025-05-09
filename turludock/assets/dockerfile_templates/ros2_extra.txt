@@ -1,0 +1,15 @@
+# Extra ROS2 packages
+RUN apt-get update && apt-get install -y \
+    ros-$ros_version_short-rosbag2-storage-mcap \
+    ros-$ros_version_short-perception \
+    ros-$ros_version_short-cv-bridge \
+    ros-$ros_version_short-pcl-ros \
+    ros-$ros_version_short-pcl-conversions \
+    ros-$ros_version_short-visualization-msgs \
+    ros-$ros_version_short-sensor-msgs \
+    ros-$ros_version_short-geometry-msgs \
+    libpcl-dev \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+RUN pip install --no-cache-dir --break-system-packages --upgrade pip || pip install --no-cache-dir --upgrade pip && \
+    pip install rosbags

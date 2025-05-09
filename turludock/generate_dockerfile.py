@@ -31,6 +31,7 @@ from turludock.generate_templated_files import (
     generate_header_info,
     generate_llvm,
     generate_ros,
+    generate_ros_extra,
     generate_tmux,
 )
 from turludock.helper_functions import (
@@ -208,6 +209,7 @@ def generate_dockerfile(yaml_config: Dict[str, Any]) -> str:
 
     # Add ROS
     dockerfile += generate_ros(yaml_config["ros_version"])
+    dockerfile += generate_ros_extra(yaml_config["ros_version"])
 
     # Add the extra-packages
     extra_packages_label_list = list()
