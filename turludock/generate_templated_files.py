@@ -28,11 +28,18 @@ def populate_templated_file(mapping: Dict[str, str], templated_file: str) -> str
     Returns:
         str: The populated templated file.
     """
-    with importlib.resources.open_text("turludock.assets.dockerfile_templates", templated_file) as f:
-        src = Template(f.read())
-        str_output = src.substitute(mapping)
-    str_output += "\n\n"
-    return str_output
+    try:
+        with importlib.resources.open_text("turludock.assets.dockerfile_templates", templated_file) as f:
+            src = Template(f.read())
+            str_output = src.substitute(mapping)
+        str_output += "\n\n"
+        return str_output
+    except FileNotFoundError:
+        print(f"Template file '{templated_file}' not found.")
+    except KeyError as e:
+        print(f"Missing substitution key: {e}")
+    except Exception as e:
+        print(f"An unexpected error occurred at function `populate_templated_file`: {e}")
 
 
 def _get_ubuntu_base_image(version: str, nvidia: bool) -> str:
@@ -243,6 +250,39 @@ def generate_ros_extra(ros_version_codename: str) -> str:
     mapping = {"ros_version_short": ros_version_codename}
 
     # Populate the templated file
+    return populate_templated_file(mapping, template_file)
+
+def generate_ros_autocomplete_fix(ros_version_codename: str) -> str:
+    """Generates the 'ros2_autocomplete_fix.txt' templated file as string
+
+    This file is responsible for introducing a fix for zsh autocomplete.
+    https://github.com/ros2/ros2cli/issues/534#issuecomment-957516107
+
+    Args:
+        ros_version_codename (str): The ROS version as codename.
+
+    Returns:
+        str: The populated 'ros2_autocomplete_fix.txt' file as a string.
+
+    Raises:
+        ValueError: If ROS version not supported / not yet added by this function
+    """
+
+    if get_ros_major_version(ros_version_codename) == 1:
+        return ""
+
+    template_file = "ros2_autocomplete_fix.txt"
+
+    # Only apply for Humble
+    if ros_version_codename == "humble" or ros_version_codename == "iron":
+        mapping = {"python_argcomplete": 'python-argcomplete3'}
+    elif ros_version_codename == "jazzy":
+        mapping = {"python_argcomplete": 'python-argcomplete'}
+    else:
+        raise ValueError(f"ROS version {ros_version_codename} not yet supported by this function. "
+                         "Ask the developer to add support!")
+    
+    logger.debug(f"Generate '{template_file}'. Input: {ros_version_codename}")
     return populate_templated_file(mapping, template_file)
 
 

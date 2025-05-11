@@ -15,7 +15,6 @@ from turludock.generate_non_templated_files import (
     generate_mesa,
     generate_ohmyzsh,
     generate_python,
-    generate_ros_autocomplete_fix,
     generate_terminator,
     generate_vscode,
 )
@@ -34,6 +33,7 @@ from turludock.generate_templated_files import (
     generate_llvm,
     generate_ros,
     generate_ros_extra,
+    generate_ros_autocomplete_fix,
     generate_tmux,
 )
 from turludock.helper_functions import (
