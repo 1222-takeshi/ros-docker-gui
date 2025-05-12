@@ -55,6 +55,15 @@ def generate_install_common_packages() -> str:
     return get_non_templated_file("install_common_packages.txt")
 
 
+def generate_python() -> str:
+    """Get python.txt as a string
+
+    Returns:
+        str: The python.txt as a string
+    """
+    return get_non_templated_file("python.txt")
+
+
 def generate_locale() -> str:
     """Get locale.txt as a string
 

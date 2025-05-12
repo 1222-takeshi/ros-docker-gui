@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.2.0] - 2025-05-09
+
+### Added
+- Added new `dockerfile_templates/python.txt` template where all python related packages are defined. Now python is istalled by default
+- Added new oh-my-zsh plugins: zsh-autosuggestions, zsh-completions and zsh-syntax-highlighting
+- Added `git-lfs` to `dockerfile_templates/install_common_packages.txt`
+
+### Fixed
+- Fixed `zsh` autocompletion issue in ROS2
+
+### Changed
+- Introduced `dockerfile_templates/ros2_extra.txt` to explicitly define extra ROS packages and reduced scope of ros2.txt
+
+### Removed
+- Removed python installation from `dockerfile_templates/conan.txt` as python is installed by default now
+- Removed any pip upgrades from template files as pip is being upgraded by default at `dockerfile_templates/python.txt`
+
 ## [3.1.1] - 2025-03-21
 
 ### Fixed

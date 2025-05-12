@@ -13,7 +13,6 @@ from turludock.helper_functions import (
     get_cpu_count_for_build,
     get_ros_major_version,
     get_ubuntu_version,
-    is_ros_version_supported,
     is_version_greater,
     is_version_lower,
 )
@@ -29,11 +28,18 @@ def populate_templated_file(mapping: Dict[str, str], templated_file: str) -> str
     Returns:
         str: The populated templated file.
     """
-    with importlib.resources.open_text("turludock.assets.dockerfile_templates", templated_file) as f:
-        src = Template(f.read())
-        str_output = src.substitute(mapping)
-    str_output += "\n\n"
-    return str_output
+    try:
+        with importlib.resources.open_text("turludock.assets.dockerfile_templates", templated_file) as f:
+            src = Template(f.read())
+            str_output = src.substitute(mapping)
+        str_output += "\n\n"
+        return str_output
+    except FileNotFoundError:
+        print(f"Template file '{templated_file}' not found.")
+    except KeyError as e:
+        print(f"Missing substitution key: {e}")
+    except Exception as e:
+        print(f"An unexpected error occurred at function `populate_templated_file`: {e}")
 
 
 def _get_ubuntu_base_image(version: str, nvidia: bool) -> str:
@@ -121,10 +127,6 @@ def generate_header_info(docker_label_description: str, ros_version_short: str) 
     """
     logger.debug(f"Generate 'header_info.txt'. Input: {docker_label_description}, {ros_version_short}")
 
-    # Check if provided version is supported
-    if not is_ros_version_supported(ros_version_short):
-        raise ValueError(f"ROS version '{ros_version_short}' not supported. Check your configuration.")
-
     # Map the template variables
     mapping = {
         "docker_label_description": docker_label_description,
@@ -199,7 +201,7 @@ def generate_llvm(version: str) -> str:
 
 
 def generate_ros(ros_version_codename: str) -> str:
-    """Generates the 'ros1.txt' or 'ros2.txt' templated file, which is responsible for installing ROS 1 or 2
+    """Generates the 'rosX.txt' templated file, which is responsible for installing ROS 1 or 2
 
     The selection of ROS 1 or 2 is based on the provided ROS codename.
 
@@ -207,10 +209,7 @@ def generate_ros(ros_version_codename: str) -> str:
         ros_version_codename (str): The ROS version as codename.
 
     Returns:
-        str: The populated 'ros1.txt' file as a string.
-
-    Raises:
-        ValueError: If the provided ROS version is not supported.
+        str: The populated 'rosX.txt' file as a string.
     """
     # Determine if it ROS1 or ROS2
     if get_ros_major_version(ros_version_codename) == 1:
@@ -220,14 +219,76 @@ def generate_ros(ros_version_codename: str) -> str:
 
     logger.debug(f"Generate '{template_file}'. Input: {ros_version_codename}")
 
-    # Check if provided version is supported
-    if not is_ros_version_supported(ros_version_codename):
-        raise ValueError("ROS version not supported. Check your configuration.")
+    # Map the template variables
+    mapping = {"ros_version_short": ros_version_codename}
+
+    # Populate the templated file
+    return populate_templated_file(mapping, template_file)
+
+
+def generate_ros_extra(ros_version_codename: str) -> str:
+    """Generates the 'rosX_extra.txt' templated file, which is responsible for installing extra ROS packages
+
+    The selection of ROS 1 or 2 is based on the provided ROS codename.
+
+    Args:
+        ros_version_codename (str): The ROS version as codename.
+
+    Returns:
+        str: The populated 'rosX_extra.txt' file as a string.
+    """
+    # Determine if it ROS1 or ROS2
+    if get_ros_major_version(ros_version_codename) == 1:
+        # TODO
+        return ""
+    else:
+        template_file = "ros2_extra.txt"
+
+    logger.debug(f"Generate '{template_file}'. Input: {ros_version_codename}")
 
     # Map the template variables
     mapping = {"ros_version_short": ros_version_codename}
 
     # Populate the templated file
+    return populate_templated_file(mapping, template_file)
+
+
+def generate_ros_autocomplete_fix(ros_version_codename: str) -> str:
+    """Generates the 'ros2_autocomplete_fix.txt' templated file as string
+
+    This file is responsible for introducing a fix for zsh autocomplete.
+    https://github.com/ros2/ros2cli/issues/534#issuecomment-957516107
+
+    This has the hidden assumption that a ROS2 version is always coupled to a Ubuntu version.
+    The fix should actually be on the Ubuntu version and not the ROS2 version.
+
+    Args:
+        ros_version_codename (str): The ROS version as codename.
+
+    Returns:
+        str: The populated 'ros2_autocomplete_fix.txt' file as a string.
+
+    Raises:
+        ValueError: If ROS version not supported / not yet added by this function
+    """
+
+    if get_ros_major_version(ros_version_codename) == 1:
+        return ""
+
+    template_file = "ros2_autocomplete_fix.txt"
+
+    # Only apply for Humble
+    if ros_version_codename == "humble" or ros_version_codename == "iron":
+        mapping = {"python_argcomplete": "python-argcomplete3"}
+    elif ros_version_codename == "jazzy":
+        mapping = {"python_argcomplete": "python-argcomplete"}
+    else:
+        raise ValueError(
+            f"ROS version {ros_version_codename} not yet supported by this function. "
+            "Ask the developer to add support!"
+        )
+
+    logger.debug(f"Generate '{template_file}'. Input: {ros_version_codename}")
     return populate_templated_file(mapping, template_file)
 
 
