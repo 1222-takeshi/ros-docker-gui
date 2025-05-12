@@ -258,6 +258,9 @@ def generate_ros_autocomplete_fix(ros_version_codename: str) -> str:
     This file is responsible for introducing a fix for zsh autocomplete.
     https://github.com/ros2/ros2cli/issues/534#issuecomment-957516107
 
+    This has the hidden assumption that a ROS2 version is always coupled to a Ubuntu version.
+    The fix should actually be on the Ubuntu version and not the ROS2 version.
+
     Args:
         ros_version_codename (str): The ROS version as codename.
 
