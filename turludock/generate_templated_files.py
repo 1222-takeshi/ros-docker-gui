@@ -252,6 +252,7 @@ def generate_ros_extra(ros_version_codename: str) -> str:
     # Populate the templated file
     return populate_templated_file(mapping, template_file)
 
+
 def generate_ros_autocomplete_fix(ros_version_codename: str) -> str:
     """Generates the 'ros2_autocomplete_fix.txt' templated file as string
 
@@ -278,13 +279,15 @@ def generate_ros_autocomplete_fix(ros_version_codename: str) -> str:
 
     # Only apply for Humble
     if ros_version_codename == "humble" or ros_version_codename == "iron":
-        mapping = {"python_argcomplete": 'python-argcomplete3'}
+        mapping = {"python_argcomplete": "python-argcomplete3"}
     elif ros_version_codename == "jazzy":
-        mapping = {"python_argcomplete": 'python-argcomplete'}
+        mapping = {"python_argcomplete": "python-argcomplete"}
     else:
-        raise ValueError(f"ROS version {ros_version_codename} not yet supported by this function. "
-                         "Ask the developer to add support!")
-    
+        raise ValueError(
+            f"ROS version {ros_version_codename} not yet supported by this function. "
+            "Ask the developer to add support!"
+        )
+
     logger.debug(f"Generate '{template_file}'. Input: {ros_version_codename}")
     return populate_templated_file(mapping, template_file)
 

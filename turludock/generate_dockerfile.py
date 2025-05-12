@@ -32,8 +32,8 @@ from turludock.generate_templated_files import (
     generate_header_info,
     generate_llvm,
     generate_ros,
-    generate_ros_extra,
     generate_ros_autocomplete_fix,
+    generate_ros_extra,
     generate_tmux,
 )
 from turludock.helper_functions import (
